@@ -16,8 +16,8 @@ export function NoteEditorScreen({ route, navigation }: Props) {
   const getNoteById = useNoteStore((s) => s.getNoteById);
   const categories = useNoteStore((s) => s.categories);
   const addNote = useNoteStore((s) => s.addNote);
-  const updateNote = useNoteStore((s) => s.kdeleteNote);
-  const deleteNote = useNoteStore((s) => s.kdeleteNote);
+  const updateNote = useNoteStore((s) => s.updateNote);
+  const deleteNote = useNoteStore((s) => s.deleteNote);
   const togglePin = useNoteStore((s) => s.togglePin);
 
   const existingNote = noteId ? getNoteById(noteId) : undefined;
@@ -57,7 +57,7 @@ export function NoteEditorScreen({ route, navigation }: Props) {
           >
             <View style={styles.metaRow}>
               <Text style={styles.metaText}>{isEditing && existingNote ? `Updated ${formatFullDate(existingNote.updatedAt)}` : 'New note \u2728'}</Text>
-              {isEditing && (<View style={styles.actionRow}><Pressable onPress={handlePin} style={styles.iconButton}><Star size={16} color={existingNote?.isPinned ? colors.gold : colors.gray400t/></Pressable><Pressable onPress={handleDelete} style={styles.iconButton}><Text style={styles.deleteIcon}>\uD83D\uDDD1\uFE0F</Text></Pressable></Vie~
+              {isEditing && (<View style={styles.actionRow}><Pressable onPress={handlePin} style={styles.iconButton}><Star size={16} color={existingNote?.isPinned ? colors.gold : colors.gray400} /></Pressable><Pressable onPress={handleDelete} style={styles.iconButton}><Text style={styles.deleteIcon}>\uD83D\uDDD1\uFE0F</Text></Pressable></View>
               )}
             </View>
             <TextInput style={styles.titleInput} value={title} onChangeText={setTitle} placeholder="Note title..." placeholderTextColor={colors.textMuted} fontWeight="700" />
@@ -69,7 +69,7 @@ export function NoteEditorScreen({ route, navigation }: Props) {
             </ScrollView>
             <Text style={styles.sectionLabel}><Heart size={12} color={colors.heart} /> Note Color</Text>
             <View style={styles.colorRow}>
-              {noteColorOptions.map((opt) => (<Pressable key={opt.key} onPress={() => setSelectedColor(opt.key as NoteColor)} style={[styles.colorDot, { backgroundColor: opt.color }, selectedColor === opt.key && styles.colorDotSelected]}><selectedColor === opt.key && (<Star size={10} color={colors.primary} />)=}</Pressable>))}
+              {noteColorOptions.map((opt) => (<Pressable key={opt.key} onPress={() => setSelectedColor(opt.key as NoteColor)} style={[styles.colorDot, { backgroundColor: opt.color }, selectedColor === opt.key && styles.colorDotSelected]}>{selectedColor === opt.key && (<Star size={10} color={colors.primary} />)}</Pressable>))}
             </View>
             <Pressable onPress={handleSave} style={({ pressed }) => [styles.saveButton, pressed && { opacity: 0.85 }]}>
               <Sparkle size={14} color={colors.white} style={{ marginRight: 6 }} />
