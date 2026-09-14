@@ -55,29 +55,15 @@ jobs:
     - name: Expo prebuild (generate native Android project)
       run: npx expo prebuild --platform android --no-install --clean
     
-    - name: Generate keystore for release signing
-      run: keytool -genkeypair -v -storetype PKCS12 -keystore android/app/release.keystore -alias release-key -keyalg RSA -keysize 2048 -validity 10000 -storepass anime123 -keypass anime123 -dname "CN=Anime Notes, O=AnimeNotes, C=IN"
-    
-    - name: Create signing config for release
+    - name: Ensure debug keystore exists
       run: |
-        sed -i "s|signingConfig signingConfigs.debug|signingConfig signingConfigs.release|g" android/app/build.gradle
-        cat >> android/app/build.gradle << 'GRADLE'
-        
-        android {
-            signingConfigs {
-                release {
-                    storeFile file('release.keystore')
-                    storePassword 'anime123'
-                    keyAlias 'release-key'
-                    keyPassword 'anime123'
-                }
-            }
-        }
-        GRADLE
+        if [ ! -f android/app/debug.keystore ]; then
+          keytool -genkeypair -v -storetype PKCS12 -keystore android/app/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
+        fi
     
     - name: Build Release APK
       working-directory: android
-      run: ./gradlew assembleRelease --no-daemon
+      run: ./gradlew assembleRelease --no-daemon --stacktrace
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
