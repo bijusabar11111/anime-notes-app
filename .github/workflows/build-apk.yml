@@ -55,13 +55,49 @@ jobs:
     - name: Expo prebuild (generate native Android project)
       run: npx expo prebuild --platform android --no-install --clean
     
-    - name: Build Debug APK
+    - name: Generate debug keystore for release signing
+      run: |
+        keytool -genkeypair \
+          -v \
+          -storetype PKCS12 \
+          -keystore android/app/debug.keystore \
+          -alias androiddebugkey \
+          -keyalg RSA \
+          -keysize 2048 \
+          -validity 10000 \
+          -storepass android \
+          -keypass android \
+          -dname "CN=Android Debug,O=Android,C=US"
+    
+    - name: Configure Gradle for release build with debug keystore
+      run: |
+        cat >> android/app/build.gradle << 'GRADLE'
+        android {
+            signingConfigs {
+                release {
+                    storeFile file('debug.keystore')
+                    storePassword 'android'
+                    keyAlias 'androiddebugkey'
+                    keyPassword 'android'
+                }
+            }
+            buildTypes {
+                release {
+                    signingConfig signingConfigs.release
+                    minifyEnabled false
+                    shrinkResources false
+                }
+            }
+        }
+        GRADLE
+    
+    - name: Build Release APK
       working-directory: android
-      run: ./gradlew assembleDebug --no-daemon
+      run: ./gradlew assembleRelease --no-daemon
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: anime-notes-apk
-        path: android/app/build/outputs/apk/debug/*.apk
+        path: android/app/build/outputs/apk/release/*.apk
         retention-days: 30
